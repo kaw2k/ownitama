@@ -7,12 +7,18 @@ import {
   Absolute,
   PlayerGame,
   LobbyState,
+  Game as _Game
 } from '../interfaces'
 import { CardView } from '../components/card'
 import { possibleMoves, equalCoordinates, winningPlayer } from '../helpers'
 import { makeMove, makeGame } from '../actions'
 import { updateFirebase } from '../helpers/firebase'
-import { InitialBoard } from 'board'
+import { InitialBoard } from 'board';
+import { notifyTurn, askPermisiion } from '../helpers/notify'
+
+const getCurrentGame = (game: GameState): _Game => {
+  return game.game[0];
+}
 
 interface Props {
   player: PlayerLobby
@@ -57,9 +63,30 @@ export class Game extends React.Component<Props, State> {
     decideCard: null,
   }
 
+  componentDidMount() {
+    askPermisiion();
+  }
+
+  componentDidUpdate(prevProps:Props, prevState:State) {
+    const currentGame = getCurrentGame(this.props.game);
+    const previousGame = getCurrentGame(prevProps.game);
+    const you = this.props.player;
+
+    if (
+      (currentGame.players[0].id !== previousGame.players[0].id)
+    ) {
+        if (currentGame.players[0].id == you.id) {
+          document.title = `* ${document.title}`
+          notifyTurn();
+        } else if (document.title.includes('*')) {
+          document.title = `${document.title.slice(2)}`
+        }
+      }
+  }
+
   render() {
     const { game, player } = this.props
-    const currentGame = game.game[0]
+    const currentGame = getCurrentGame(game);
 
     const isUserPlaying = !!currentGame.players.find(p => p.id === player.id)
 
