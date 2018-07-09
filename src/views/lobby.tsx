@@ -80,7 +80,7 @@ export class Lobby extends React.Component<Props, State> {
               }
               onClick={() =>
                 updateFirebase({
-                  cards: null,
+                  cards: lobby.cards,
                   chat: null,
                   type: 'lobby',
                   players: lobby.players

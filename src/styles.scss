@@ -20,7 +20,8 @@ $border: 1px solid black;
 
 html {
   touch-action: manipulation;
-  font-family: 'Gaegu', cursive;
+  font-family: 'Markazi Text', serif;
+  text-transform: uppercase;
 
   // font-size: 4vw;
   @media (min-width: 50em) {
@@ -120,6 +121,11 @@ input {
   .tile-4-2 {
     border-bottom: 3px solid black !important;
   }
+}
+
+h1 {
+  font-family: 'Kaushan Script', cursive;
+  text-transform: initial;
 }
 
 // =====================
@@ -277,7 +283,7 @@ input {
   .cards {
     display: grid;
     grid-gap: 1.5 * $card-tile-size;
-    grid-template-columns: repeat(auto-fill, minmax(5 * $card-tile-size, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     align-items: flex-start;
   }
 }
@@ -314,4 +320,9 @@ input {
   > * + * {
     margin-left: 10px;
   }
+}
+
+#root {
+  max-width: 600px;
+  margin: 0 auto;
 }
