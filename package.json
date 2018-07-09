@@ -6,9 +6,9 @@
   "license": "ISC",
   "main": "src/index.ts",
   "scripts": {
-    "start": "parcel src/index.html --no-cache",
+    "start": "yarn && parcel src/index.html --no-cache",
     "deploy": "npm run build && firebase deploy",
-    "build": "parcel build ./src/index.html --no-cache --no-minify --public-url=./"
+    "build": "yarn && parcel build ./src/index.html --no-cache --no-minify --public-url=./"
   },
   "prettier": {
     "printWidth": 80,
