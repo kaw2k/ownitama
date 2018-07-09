@@ -8,4 +8,3 @@ chess timers
 PWA / offline mode / pass and play
 add escape to cancel things
 tabs for all your active games
-bug where joining a lobby resets cards

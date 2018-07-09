@@ -39,8 +39,13 @@ export function doesCardHaveMove(
   target: Coordinate<Absolute>,
   card: Card
 ): boolean {
+  const invertMoves = game.players[0].color === 'blue'
+
   for (let move of card.moves) {
-    const translated = translateCoordinate(origin, move)
+    const translated = translateCoordinate(
+      origin,
+      invertMoves ? ([-1 * move[0], -1 * move[1]] as any) : move
+    )
     if (translated && equalCoordinates(translated, target)) {
       return true
     }
