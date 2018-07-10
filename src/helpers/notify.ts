@@ -3,7 +3,7 @@ import Notify from 'notifyjs';
 const turnNotice = new Notify('Ownitama', {body: 'It\s your turn' });
 
 export const  askPermisiion = () => { 
-    if (Notify.needsPermission && Notify.requestPermission) {
+    if (Notify.needsPermission && Notify.isSupported() && Notify.requestPermission) {
         Notify.requestPermission();
     }
 }
