@@ -40,7 +40,7 @@ export interface Game {
   } | null
 }
 
-type Chat = { playerName: string; message: string }[] | null
+export type Chat = { playerName: string; message: string }[] | null
 
 export interface LobbyState {
   type: 'lobby'

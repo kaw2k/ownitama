@@ -4,6 +4,7 @@ import { PlayerLobby, LobbyState, Card } from '../interfaces'
 import { Cards } from '../cards'
 import { CardView } from '../components/card'
 import { makeGame } from '../actions'
+import { Chat } from '../components/chat'
 
 interface Props {
   player: PlayerLobby
@@ -51,9 +52,7 @@ export class Lobby extends React.Component<Props, State> {
               }
               onClick={() => {
                 updateFirebase({
-                  cards: null,
-                  chat: null,
-                  type: 'lobby',
+                  ...lobby,
                   players:
                     lobby.players &&
                     (lobby.players.filter(p => p.id !== player.id) as any),
@@ -80,9 +79,7 @@ export class Lobby extends React.Component<Props, State> {
               }
               onClick={() =>
                 updateFirebase({
-                  cards: lobby.cards,
-                  chat: null,
-                  type: 'lobby',
+                  ...lobby,
                   players: lobby.players
                     ? [lobby.players[0], player]
                     : [player],
@@ -174,6 +171,19 @@ export class Lobby extends React.Component<Props, State> {
             </div>
           </>
         )}
+
+        <Chat
+          onSubmit={message => {
+            updateFirebase({
+              ...lobby,
+              chat: [
+                { message, playerName: player.name },
+                ...(lobby.chat || []),
+              ],
+            })
+          }}
+          chats={lobby.chat}
+        />
       </div>
     )
   }

@@ -326,3 +326,24 @@ h1 {
   max-width: 600px;
   margin: 0 auto;
 }
+
+.chat {
+  margin-top: 10px;
+
+  input {
+    width: 100%;
+  }
+
+  li {
+    padding: 3px 7px;
+
+    &:nth-child(2n) {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  strong {
+    display: inline-block;
+    margin-right: 5px;
+  }
+}
