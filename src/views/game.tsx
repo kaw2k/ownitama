@@ -153,7 +153,7 @@ export class Game extends React.Component<Props, State> {
                             ...this.props.game,
                             game: [move, ...game.game],
                           })
-                          this.setState({ origin: null })
+                          this.setState({ origin: null, decideCard: null })
                         } else {
                           this.setState({ decideCard: [x, y] as any })
                         }
