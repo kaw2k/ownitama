@@ -13,8 +13,9 @@ import { CardView } from '../components/card'
 import { possibleMoves, equalCoordinates, winningPlayer } from '../helpers'
 import { makeMove, makeGame } from '../actions'
 import { updateFirebase } from '../helpers/firebase'
-import { notifyTurn, askPermisiion } from '../helpers/notify'
+import { notifyTurn, notifyChat, askPermisiion } from '../helpers/notify'
 import { Chat } from '../components/chat'
+import { getNotificationSettings, setNotificationSettings} from '../helpers/localstorage';
 
 const getCurrentGame = (game: GameState): _Game => {
   return game.game[0]
@@ -29,6 +30,7 @@ interface State {
   message: string
   origin: Coordinate<Absolute> | null
   decideCard: Coordinate<Absolute> | null
+  notifyChat?: boolean;
 }
 
 const Token: React.SFC<{
@@ -61,6 +63,7 @@ export class Game extends React.Component<Props, State> {
     message: '',
     origin: null,
     decideCard: null,
+    notifyChat: getNotificationSettings().chat
   }
 
   componentDidMount() {
@@ -79,6 +82,13 @@ export class Game extends React.Component<Props, State> {
       } else if (document.title.includes('*')) {
         document.title = `${document.title.slice(2)}`
       }
+    }
+
+    if (this.state.notifyChat && 
+       ((this.props.game.chat || []).length !== (prevProps.game.chat || []).length) &&
+       this.props.game.chat![0].id !== this.props.player.id
+    ) {
+      notifyChat(this.props.game.chat![0])
     }
   }
 
@@ -282,13 +292,23 @@ export class Game extends React.Component<Props, State> {
           )}
         </div>
 
+        <div style={{width: '100%', marginTop: '1rem'}}>
+          <input type="checkbox" checked={this.state.notifyChat} 
+          onChange={
+          (event) => {  
+            setNotificationSettings({chat: true});
+            this.setState({notifyChat: event.target.checked})
+          }
+          } /> Notify on Chat
+        </div>
+
         <Chat
           chats={game.chat}
           onSubmit={message => {
             updateFirebase({
               ...game,
               chat: [
-                { message, playerName: player.name },
+                { message, playerName: player.name, id: player.id },
                 ...(game.chat || []),
               ],
             })
