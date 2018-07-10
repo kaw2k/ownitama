@@ -6,3 +6,6 @@ chess timers
 PWA / offline mode / pass and play
 add escape to cancel things
 tabs for all your active games
+notifications for game start and end
+undo
+view previous moves
