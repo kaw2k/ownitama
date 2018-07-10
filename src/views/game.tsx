@@ -259,6 +259,19 @@ export class Game extends React.Component<Props, State> {
             </>
           ) : (
             <>
+              {isUserPlaying && (
+                <button
+                  className="undo action"
+                  onClick={() => {
+                    updateFirebase({
+                      ...game,
+                      game: game.game.slice(1),
+                    })
+                  }}
+                  disabled={isActivePlayer || game.game.length === 1}>
+                  undo
+                </button>
+              )}
               <Player invert player={opponent} />
               <CardView invert={!isActivePlayer} card={currentGame.card} />
               <Player player={you} />
