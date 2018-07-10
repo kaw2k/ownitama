@@ -161,4 +161,14 @@ export const Cards: Card[] = [
     name: 'tiger',
     moves: [[1, 0], [-2, 0]],
   },
+  {
+    color: 'red',
+    name: 'goat',
+    moves: [[1, 0], [0, 1], [-1,-1]]
+  },
+  {
+    color: 'blue',
+    name: 'sheep',
+    moves: [[-1, 1], [0, -1], [1, 0]]
+  }
 ]
