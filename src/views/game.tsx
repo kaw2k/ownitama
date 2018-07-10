@@ -273,7 +273,10 @@ export class Game extends React.Component<Props, State> {
                 </button>
               )}
               <Player invert player={opponent} />
-              <CardView invert={!isActivePlayer} card={currentGame.card} />
+              <div className="spare-card">
+                <h3 className="turn-name">{isActivePlayer ? 'you' : 'them'}</h3>
+                <CardView invert={!isActivePlayer} card={currentGame.card} />
+              </div>
               <Player player={you} />
             </>
           )}

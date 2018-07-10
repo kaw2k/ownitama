@@ -262,6 +262,20 @@ h1 {
     .undo {
       width: 100%;
     }
+
+    .spare-card {
+      display: flex;
+      align-items: center;
+
+      .turn-name {
+        transform: rotate(-90deg);
+        height: 1em;
+      }
+
+      .card {
+        padding: 0 10px;
+      }
+    }
   }
 
   .possible-move {
