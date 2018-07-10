@@ -179,6 +179,10 @@ h1 {
   .name {
     transform: rotate(-90deg);
     height: 1em;
+    max-width: 4em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
