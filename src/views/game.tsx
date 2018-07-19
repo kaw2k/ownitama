@@ -13,7 +13,7 @@ import { CardView } from '../components/card'
 import { possibleMoves, equalCoordinates, winningPlayer } from '../helpers'
 import { makeMove, makeGame } from '../actions'
 import { updateFirebase } from '../helpers/firebase'
-import { notifyTurn, askPermisiion } from '../helpers/notify'
+import { notifyTurn, askPermission } from '../helpers/notify'
 import { Chat } from '../components/chat'
 
 const getCurrentGame = (game: GameState): _Game => {
@@ -64,7 +64,7 @@ export class Game extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    askPermisiion()
+    askPermission()
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
