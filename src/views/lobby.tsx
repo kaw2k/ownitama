@@ -48,14 +48,19 @@ export class Lobby extends React.Component<Props, State> {
             <button
               className="action"
               disabled={
-                !lobby.players || !lobby.players.find(p => p.id === player.id)
+                !lobby.players ||
+                !lobby.players.find(
+                  p => p.id === player.id && p.name === player.name
+                )
               }
               onClick={() => {
                 updateFirebase({
                   ...lobby,
                   players:
                     lobby.players &&
-                    (lobby.players.filter(p => p.id !== player.id) as any),
+                    (lobby.players.filter(
+                      p => p.id !== player.id && p.name !== player.name
+                    ) as any),
                 })
                 window.location.replace('/')
               }}
@@ -113,7 +118,9 @@ export class Lobby extends React.Component<Props, State> {
             {lobby.players &&
               lobby.players.map(p => (
                 <li key={p.id}>
-                  {p.name} {p.id === player.id && <em>(pin: {player.id})</em>}{' '}
+                  {p.name}{' '}
+                  {p.id === player.id &&
+                    p.name === player.name && <em>(pin: {player.id})</em>}{' '}
                 </li>
               ))}
           </ul>

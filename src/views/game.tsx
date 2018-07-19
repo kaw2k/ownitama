@@ -2,13 +2,11 @@ import * as React from 'react'
 import {
   GameState,
   PlayerLobby,
-  Piece,
   Coordinate,
   Absolute,
-  PlayerGame,
   LobbyState,
   Game as _Game,
-} from '../interfaces'
+} from 'interfaces'
 import { CardView } from '../components/card'
 import { possibleMoves, equalCoordinates, winningPlayer } from '../helpers'
 import { makeMove, makeGame } from '../actions'
@@ -16,6 +14,9 @@ import { updateFirebase } from '../helpers/firebase'
 import { notifyTurn, askPermission } from '../helpers/notify'
 import { Chat } from '../components/chat'
 import { Helmet } from 'react-helmet'
+import { Spectate } from './spectate'
+import { Token } from '../components/token'
+import { Player } from '../components/player'
 
 const getCurrentGame = (game: GameState): _Game => {
   return game.game[0]
@@ -32,31 +33,6 @@ interface State {
   origin: Coordinate<Absolute> | null
   decideCard: Coordinate<Absolute> | null
 }
-
-const Token: React.SFC<{
-  piece: Piece
-  disabled: boolean
-  onClick: () => void
-}> = ({ piece: { type, color }, disabled, onClick }) => (
-  <button
-    disabled={disabled}
-    onClick={onClick}
-    className={`token ${type} ${color}`}>
-    <div />
-  </button>
-)
-
-const Player: React.SFC<{ player: PlayerGame; invert?: boolean }> = ({
-  player,
-  invert,
-}) => (
-  <div className="player">
-    <h3 className="name">{player.name}</h3>
-    {player.cards.map(card => (
-      <CardView key={card.name} invert={invert} card={card} />
-    ))}
-  </div>
-)
 
 export class Game extends React.Component<Props, State> {
   private notifyTurn: boolean = false
@@ -75,7 +51,17 @@ export class Game extends React.Component<Props, State> {
     const { game, player } = this.props
     const currentGame = getCurrentGame(game)
 
-    const isUserPlaying = !!currentGame.players.find(p => p.id === player.id)
+    const isUserPlaying = !!currentGame.players.find(
+      p => p.id === player.id && p.name === player.name
+    )
+    if (!isUserPlaying)
+      return (
+        <Spectate
+          game={this.props.game}
+          gameName={this.props.gameName}
+          player={this.props.player}
+        />
+      )
 
     const you =
       currentGame.players[0].id === player.id
@@ -106,7 +92,7 @@ export class Game extends React.Component<Props, State> {
       <div className="game">
         <Helmet>
           <title>
-            {isActivePlayer && '*'} {this.props.gameName} - Ownitama
+            {`${isActivePlayer ? '* ' : ''}${this.props.gameName} - Ownitama`}
           </title>
         </Helmet>
 
@@ -136,33 +122,33 @@ export class Game extends React.Component<Props, State> {
                     />
                   )}
 
-                  {moves.find(move =>
-                    equalCoordinates(move, [x, y] as any)
-                  ) && (
-                    <button
-                      className="possible-move"
-                      type="button"
-                      onClick={() => {
-                        if (!this.state.origin) return
+                  {moves.find(move => equalCoordinates(move, [x, y] as any)) &&
+                    isActivePlayer &&
+                    isUserPlaying && (
+                      <button
+                        className="possible-move"
+                        type="button"
+                        onClick={() => {
+                          if (!this.state.origin) return
 
-                        const move = makeMove(
-                          currentGame,
-                          this.state.origin as any,
-                          [x, y] as any
-                        )
+                          const move = makeMove(
+                            currentGame,
+                            this.state.origin as any,
+                            [x, y] as any
+                          )
 
-                        if (typeof move === 'object') {
-                          updateFirebase({
-                            ...this.props.game,
-                            game: [move, ...game.game],
-                          })
-                          this.setState({ origin: null, decideCard: null })
-                        } else {
-                          this.setState({ decideCard: [x, y] as any })
-                        }
-                      }}
-                    />
-                  )}
+                          if (typeof move === 'object') {
+                            updateFirebase({
+                              ...this.props.game,
+                              game: [move, ...game.game],
+                            })
+                            this.setState({ origin: null, decideCard: null })
+                          } else {
+                            this.setState({ decideCard: [x, y] as any })
+                          }
+                        }}
+                      />
+                    )}
                 </li>
               ))}
             </ul>
