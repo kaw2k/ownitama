@@ -15,6 +15,7 @@ import { makeMove, makeGame } from '../actions'
 import { updateFirebase } from '../helpers/firebase'
 import { notifyTurn, askPermission } from '../helpers/notify'
 import { Chat } from '../components/chat'
+import { Helmet } from 'react-helmet'
 
 const getCurrentGame = (game: GameState): _Game => {
   return game.game[0]
@@ -23,6 +24,7 @@ const getCurrentGame = (game: GameState): _Game => {
 interface Props {
   player: PlayerLobby
   game: GameState
+  gameName: string
 }
 
 interface State {
@@ -57,6 +59,8 @@ const Player: React.SFC<{ player: PlayerGame; invert?: boolean }> = ({
 )
 
 export class Game extends React.Component<Props, State> {
+  private notifyTurn: boolean = false
+
   state: State = {
     message: '',
     origin: null,
@@ -65,21 +69,6 @@ export class Game extends React.Component<Props, State> {
 
   componentDidMount() {
     askPermission()
-  }
-
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    const currentGame = getCurrentGame(this.props.game)
-    const previousGame = getCurrentGame(prevProps.game)
-    const you = this.props.player
-
-    if (currentGame.players[0].id !== previousGame.players[0].id) {
-      if (currentGame.players[0].id == you.id) {
-        document.title = `* ${document.title}`
-        notifyTurn()
-      } else if (document.title.includes('*')) {
-        document.title = `${document.title.slice(2)}`
-      }
-    }
   }
 
   render() {
@@ -105,8 +94,22 @@ export class Game extends React.Component<Props, State> {
 
     const gameOver = winningPlayer(currentGame)
 
+    // Notify the player that it is their turn
+    if (!this.notifyTurn && isActivePlayer) {
+      notifyTurn()
+      this.notifyTurn = true
+    } else if (this.notifyTurn && !isActivePlayer) {
+      this.notifyTurn = false
+    }
+
     return (
       <div className="game">
+        <Helmet>
+          <title>
+            {isActivePlayer && '*'} {this.props.gameName} - Ownitama
+          </title>
+        </Helmet>
+
         <div className={`board ${you.color === 'blue' ? 'invert' : ''}`}>
           {currentGame.board.map((row, x) => (
             <ul>

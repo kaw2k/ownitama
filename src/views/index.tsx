@@ -26,7 +26,6 @@ export class App extends React.Component<{}, FirebaseState> {
 
   render() {
     const player = getPlayer()
-    console.log(this.state.type)
 
     if (!player) return <Login />
 
@@ -35,7 +34,7 @@ export class App extends React.Component<{}, FirebaseState> {
     if (this.state.type === 'main-lobby') return <MainLobby player={player} />
 
     if (this.state.type === 'game')
-      return <Game player={player} game={this.state} />
+      return <Game player={player} game={this.state} gameName={getPath()} />
 
     if (this.state.type === 'lobby')
       return <Lobby player={player} lobby={this.state} lobbyName={getPath()} />

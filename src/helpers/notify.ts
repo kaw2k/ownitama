@@ -1,6 +1,9 @@
 import Notify from 'notifyjs'
+import { getPath } from './url'
 
-const turnNotice = new Notify('Ownitama', { body: 'Its your turn' })
+const turnNotice = new Notify('Ownitama', {
+  body: `${getPath()} - Its your turn`,
+})
 
 export const askPermission = () => {
   if (
