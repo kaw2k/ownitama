@@ -218,7 +218,6 @@ export class Game extends React.Component<Props, State> {
               </h1>
               <button
                 className="action"
-                disabled={!isUserPlaying}
                 onClick={() => {
                   updateFirebase({
                     type: 'game',
@@ -230,7 +229,6 @@ export class Game extends React.Component<Props, State> {
               </button>
               <button
                 className="action"
-                disabled={!isUserPlaying}
                 onClick={() => {
                   updateFirebase({
                     type: 'game',
@@ -248,7 +246,6 @@ export class Game extends React.Component<Props, State> {
               </button>
               <button
                 className="action"
-                disabled={!isUserPlaying}
                 onClick={() => {
                   updateFirebase({
                     type: 'lobby',
@@ -264,7 +261,7 @@ export class Game extends React.Component<Props, State> {
             <>
               {isUserPlaying && (
                 <button
-                  className="undo action"
+                  className="action"
                   onClick={() => {
                     updateFirebase({
                       ...game,
@@ -275,6 +272,20 @@ export class Game extends React.Component<Props, State> {
                   undo
                 </button>
               )}
+
+              <button
+                className="action"
+                onClick={() => {
+                  updateFirebase({
+                    type: 'lobby',
+                    chat: null,
+                    players: null,
+                    cards: null,
+                  })
+                }}>
+                end game
+              </button>
+
               <Player invert player={opponent} />
               <div className="spare-card">
                 <h3 className="turn-name">{isActivePlayer ? 'you' : 'them'}</h3>
