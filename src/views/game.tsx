@@ -71,7 +71,9 @@ export class Game extends React.Component<Props, State> {
       this.state.notifyChat &&
       (this.props.game.chat || []).length !==
         (prevProps.game.chat || []).length &&
-      this.props.game.chat![0].id !== this.props.player.id
+      this.props.game.chat &&
+      this.props.game.chat[0] &&
+      this.props.game.chat[0].id !== this.props.player.id
     ) {
       notifyChat(this.props.game.chat![0])
     }
