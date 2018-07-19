@@ -111,6 +111,7 @@ export class Game extends React.Component<Props, State> {
                       }
                       onClick={() =>
                         this.setState({
+                          decideCard: null,
                           origin:
                             this.state.origin &&
                             equalCoordinates([x, y] as any, this.state.origin)
@@ -156,7 +157,7 @@ export class Game extends React.Component<Props, State> {
         </div>
 
         <div className="game-meta">
-          {this.state.decideCard ? (
+          {this.state.decideCard && isActivePlayer ? (
             <>
               <h3>which card did you want to use?</h3>
 
