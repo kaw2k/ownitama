@@ -40,7 +40,9 @@ export interface Game {
   } | null
 }
 
-export type Chat = { playerName: string; message: string }[] | null
+export type Chat = ChatMessage[] | null
+
+export type ChatMessage = {playerName: string; message: string, id: string}
 
 export interface LobbyState {
   type: 'lobby'
@@ -76,9 +78,12 @@ export interface MainLobby {
   type: 'main-lobby'
 }
 
+export interface NotificationSettings {
+  chat?: boolean;
+}
+
 export type FirebaseState = LoadingState | GameState | LobbyState | MainLobby
 
-export type LocalStorageState = PlayerLobby
 
 export interface LobbyLocalState {
   message: string

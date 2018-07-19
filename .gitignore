@@ -7,3 +7,4 @@ typings
 .trash
 .DS_Store
 .env
+.vs
