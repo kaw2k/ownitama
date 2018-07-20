@@ -1,19 +1,19 @@
 import * as React from 'react'
+import { Helmet } from 'react-helmet'
+import { makeGame } from '../actions'
+import { CardView } from '../components/card'
+import { Chat } from '../components/chat'
+import { Player } from '../components/player'
+import { Token } from '../components/token'
+import { updateFirebaseGame } from '../helpers/firebase'
+import { isGameOver } from '../helpers/isGameOver'
 import {
+  Game as _Game,
   GameState,
   PlayerLobby,
-  LobbyState,
-  Game as _Game,
   FirebaseUserState,
+  LobbyState,
 } from '../interfaces'
-import { CardView } from '../components/card'
-import { winningPlayer } from '../helpers'
-import { makeGame } from '../actions'
-import { updateFirebaseGame } from '../helpers/firebase'
-import { Chat } from '../components/chat'
-import { Helmet } from 'react-helmet'
-import { Token } from '../components/token'
-import { Player } from '../components/player'
 
 const getCurrentGame = (game: GameState): _Game => {
   return game.game[0]
@@ -38,7 +38,7 @@ export class Spectate extends React.Component<Props, State> {
   render() {
     const { game, player } = this.props
     const currentGame = getCurrentGame(game)
-    const gameOver = winningPlayer(currentGame)
+    const gameOver = isGameOver(currentGame)
 
     const activePlayer = currentGame.players[0]
 

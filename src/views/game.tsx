@@ -1,27 +1,29 @@
-import * as React from 'react'
 import {
-  GameState,
-  PlayerLobby,
-  Coordinate,
   Absolute,
-  LobbyState,
-  Game as _Game,
+  Coordinate,
   FirebaseUserState,
-} from 'interfaces'
-import { CardView } from '../components/card'
-import { possibleMoves, equalCoordinates, winningPlayer } from '../helpers'
-import { makeMove, makeGame } from '../actions'
-import { updateFirebaseGame } from '../helpers/firebase'
-import { notifyTurn, askPermission, notifyChat } from '../helpers/notify'
-import { Chat } from '../components/chat'
+  Game as _Game,
+  GameState,
+  LobbyState,
+  PlayerLobby,
+} from '../interfaces'
+import * as React from 'react'
 import { Helmet } from 'react-helmet'
-import { Spectate } from './spectate'
-import { Token } from '../components/token'
+import { makeGame, makeMove } from '../actions'
+import { CardView } from '../components/card'
+import { Chat } from '../components/chat'
 import { Player } from '../components/player'
+import { Token } from '../components/token'
+import { equalCoordinates } from '../helpers/coordinates'
+import { updateFirebaseGame } from '../helpers/firebase'
+import { isGameOver } from '../helpers/isGameOver'
 import {
   getNotificationSettings,
   setNotificationSettings,
 } from '../helpers/localstorage'
+import { possibleMoves } from '../helpers/moves'
+import { askPermission, notifyChat, notifyTurn } from '../helpers/notify'
+import { Spectate } from './spectate'
 
 const getCurrentGame = (game: GameState): _Game => {
   return game.game[0]
@@ -113,7 +115,7 @@ export class Game extends React.Component<Props, State> {
       ? possibleMoves(currentGame, this.state.origin)
       : []
 
-    const gameOver = winningPlayer(currentGame)
+    const gameOver = isGameOver(currentGame)
 
     // Notify the player that it is their turn
     if (!this.notifyTurn && isActivePlayer) {

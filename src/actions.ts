@@ -1,11 +1,4 @@
 import {
-  clone,
-  doesCardHaveMove,
-  equalCoordinates,
-  possibleMoves,
-  shuffle,
-} from './helpers'
-import {
   Absolute,
   Card,
   Coordinate,
@@ -15,6 +8,10 @@ import {
 } from './interfaces'
 import { Cards } from './cards'
 import { InitialBoard } from './board'
+import { clone } from './helpers/clone'
+import { possibleMoves, doesCardHaveMove } from './helpers/moves'
+import { equalCoordinates } from './helpers/coordinates'
+import { shuffle } from './helpers/shuffle'
 
 export function makeMove(
   game: Game,
