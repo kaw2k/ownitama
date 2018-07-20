@@ -6,11 +6,12 @@ import {
   Absolute,
   LobbyState,
   Game as _Game,
+  FirebaseUserState,
 } from 'interfaces'
 import { CardView } from '../components/card'
 import { possibleMoves, equalCoordinates, winningPlayer } from '../helpers'
 import { makeMove, makeGame } from '../actions'
-import { updateFirebase } from '../helpers/firebase'
+import { updateFirebaseGame } from '../helpers/firebase'
 import { notifyTurn, askPermission, notifyChat } from '../helpers/notify'
 import { Chat } from '../components/chat'
 import { Helmet } from 'react-helmet'
@@ -30,6 +31,7 @@ interface Props {
   player: PlayerLobby
   game: GameState
   gameName: string
+  userPresence: FirebaseUserState
 }
 
 interface State {
@@ -171,7 +173,7 @@ export class Game extends React.Component<Props, State> {
                           )
 
                           if (typeof move === 'object') {
-                            updateFirebase({
+                            updateFirebaseGame({
                               ...this.props.game,
                               game: [move, ...game.game],
                             })
@@ -215,7 +217,7 @@ export class Game extends React.Component<Props, State> {
                     )
 
                     if (typeof move === 'object') {
-                      updateFirebase({
+                      updateFirebaseGame({
                         ...this.props.game,
                         game: [move, ...game.game],
                       })
@@ -238,7 +240,7 @@ export class Game extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebase({
+                  updateFirebaseGame({
                     type: 'game',
                     chat: null,
                     game: [makeGame(currentGame.players)],
@@ -249,7 +251,7 @@ export class Game extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebase({
+                  updateFirebaseGame({
                     type: 'game',
                     chat: null,
                     game: [
@@ -266,7 +268,7 @@ export class Game extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebase({
+                  updateFirebaseGame({
                     type: 'lobby',
                     players: currentGame.players,
                     cards: null,
@@ -282,7 +284,7 @@ export class Game extends React.Component<Props, State> {
                 <button
                   className="action"
                   onClick={() => {
-                    updateFirebase({
+                    updateFirebaseGame({
                       ...game,
                       game: game.game.slice(1),
                     })
@@ -295,7 +297,7 @@ export class Game extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebase({
+                  updateFirebaseGame({
                     type: 'lobby',
                     chat: null,
                     players: null,
@@ -305,12 +307,16 @@ export class Game extends React.Component<Props, State> {
                 end game
               </button>
 
-              <Player invert player={opponent} />
+              <Player
+                statuses={this.props.userPresence}
+                invert
+                player={opponent}
+              />
               <div className="spare-card">
                 <h3 className="turn-name">{isActivePlayer ? 'you' : 'them'}</h3>
                 <CardView invert={!isActivePlayer} card={currentGame.card} />
               </div>
-              <Player player={you} />
+              <Player statuses={this.props.userPresence} player={you} />
             </>
           )}
         </div>
@@ -329,8 +335,9 @@ export class Game extends React.Component<Props, State> {
 
         <Chat
           chats={game.chat}
+          userPresence={this.props.userPresence}
           onSubmit={message => {
-            updateFirebase({
+            updateFirebaseGame({
               ...game,
               chat: [
                 { message, playerName: player.name, id: player.id },

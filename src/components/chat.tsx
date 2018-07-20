@@ -1,9 +1,12 @@
 import * as React from 'react'
-import { Chat as ChatType } from '../interfaces'
+import { Chat as ChatType, FirebaseUserState } from '../interfaces'
+import { PlayerName } from './player'
+import { hashUser } from '../helpers/firebase'
 
 interface Props {
   onSubmit: (message: string) => void
   chats: ChatType
+  userPresence: FirebaseUserState
 }
 
 interface State {
@@ -43,10 +46,14 @@ export class Chat extends React.Component<Props, State> {
 
         {chats && (
           <ul>
-            {chats.map(({ playerName, message }, i) => (
+            {chats.map(({ playerName, message, id }, i) => (
               <li key={`${playerName}-${i}`}>
-                <strong>{playerName}:</strong>
-                {message}
+                {/* <strong>{playerName}:</strong> */}
+                <PlayerName
+                  inline
+                  player={{ name: playerName, id }}
+                  statuses={this.props.userPresence}
+                />: {message}
               </li>
             ))}
           </ul>

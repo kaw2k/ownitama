@@ -1,15 +1,17 @@
 import * as React from 'react'
-import { updateFirebase } from '../helpers/firebase'
-import { PlayerLobby, LobbyState, Card } from '../interfaces'
+import { updateFirebaseGame } from '../helpers/firebase'
+import { PlayerLobby, LobbyState, Card, FirebaseUserState } from '../interfaces'
 import { Cards } from '../cards'
 import { CardView } from '../components/card'
 import { makeGame } from '../actions'
 import { Chat } from '../components/chat'
+import { PlayerName } from '../components/player'
 
 interface Props {
   player: PlayerLobby
   lobby: LobbyState
   lobbyName: string
+  userPresence: FirebaseUserState
 }
 
 interface State {
@@ -34,7 +36,7 @@ export class Lobby extends React.Component<Props, State> {
               className="action"
               onClick={() => {
                 this.setState({ showCustomCards: false })
-                updateFirebase({
+                updateFirebaseGame({
                   cards: null,
                   chat: null,
                   type: 'lobby',
@@ -54,7 +56,7 @@ export class Lobby extends React.Component<Props, State> {
                 )
               }
               onClick={() => {
-                updateFirebase({
+                updateFirebaseGame({
                   ...lobby,
                   players:
                     lobby.players &&
@@ -80,10 +82,12 @@ export class Lobby extends React.Component<Props, State> {
               disabled={
                 (!!lobby.players && lobby.players.length === 2) ||
                 (!!lobby.players &&
-                  !!lobby.players.find(p => p.id === player.id))
+                  !!lobby.players.find(
+                    p => p.id === player.id && p.name === player.name
+                  ))
               }
               onClick={() =>
-                updateFirebase({
+                updateFirebaseGame({
                   ...lobby,
                   players: lobby.players
                     ? [lobby.players[0], player]
@@ -100,7 +104,7 @@ export class Lobby extends React.Component<Props, State> {
               onClick={() => {
                 lobby.players &&
                   lobby.players.length === 2 &&
-                  updateFirebase({
+                  updateFirebaseGame({
                     type: 'game',
                     game: [makeGame(lobby.players, lobby.cards)],
                     chat: null,
@@ -118,7 +122,11 @@ export class Lobby extends React.Component<Props, State> {
             {lobby.players &&
               lobby.players.map(p => (
                 <li key={p.id}>
-                  {p.name}{' '}
+                  <PlayerName
+                    inline
+                    player={p}
+                    statuses={this.props.userPresence}
+                  />
                   {p.id === player.id &&
                     p.name === player.name && <em>(pin: {player.id})</em>}{' '}
                 </li>
@@ -137,7 +145,7 @@ export class Lobby extends React.Component<Props, State> {
                     key={card.name}
                     className="card-button"
                     onClick={() =>
-                      updateFirebase({
+                      updateFirebaseGame({
                         ...lobby,
                         cards:
                           lobby.cards &&
@@ -166,7 +174,7 @@ export class Lobby extends React.Component<Props, State> {
                     key={card.name}
                     disabled={!!lobby.cards && lobby.cards.length === 5}
                     onClick={() => {
-                      updateFirebase({
+                      updateFirebaseGame({
                         ...lobby,
                         cards: (lobby.cards || ([] as any)).concat(card),
                       })
@@ -180,11 +188,12 @@ export class Lobby extends React.Component<Props, State> {
         )}
 
         <Chat
+          userPresence={this.props.userPresence}
           onSubmit={message => {
-            updateFirebase({
+            updateFirebaseGame({
               ...lobby,
               chat: [
-                { message, playerName: player.name },
+                { message, playerName: player.name, id: player.id },
                 ...(lobby.chat || []),
               ],
             })

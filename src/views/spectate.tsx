@@ -8,7 +8,7 @@ import {
 import { CardView } from '../components/card'
 import { winningPlayer } from '../helpers'
 import { makeGame } from '../actions'
-import { updateFirebase } from '../helpers/firebase'
+import { updateFirebaseGame } from '../helpers/firebase'
 import { Chat } from '../components/chat'
 import { Helmet } from 'react-helmet'
 import { Token } from '../components/token'
@@ -22,6 +22,7 @@ interface Props {
   player: PlayerLobby
   game: GameState
   gameName: string
+  userPresence: FirebaseUserState
 }
 
 interface State {
@@ -80,7 +81,7 @@ export class Spectate extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebase({
+                  updateFirebaseGame({
                     type: 'game',
                     chat: null,
                     game: [makeGame(currentGame.players)],
@@ -91,7 +92,7 @@ export class Spectate extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebase({
+                  updateFirebaseGame({
                     type: 'game',
                     chat: null,
                     game: [
@@ -108,7 +109,7 @@ export class Spectate extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebase({
+                  updateFirebaseGame({
                     type: 'lobby',
                     players: currentGame.players,
                     cards: null,
@@ -124,7 +125,7 @@ export class Spectate extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebase({
+                  updateFirebaseGame({
                     type: 'lobby',
                     chat: null,
                     players: null,
@@ -134,25 +135,26 @@ export class Spectate extends React.Component<Props, State> {
                 end game
               </button>
 
-              <Player invert player={blue} />
+              <Player statuses={this.props.userPresence} invert player={blue} />
               <div className="spare-card">
                 <CardView
                   invert={activePlayer.color === 'blue'}
                   card={currentGame.card}
                 />
               </div>
-              <Player player={red} />
+              <Player statuses={this.props.userPresence} player={red} />
             </>
           )}
         </div>
 
         <Chat
           chats={game.chat}
+          userPresence={this.props.userPresence}
           onSubmit={message => {
-            updateFirebase({
+            updateFirebaseGame({
               ...game,
               chat: [
-                { message, playerName: player.name },
+                { message, playerName: player.name, id: player.id },
                 ...(game.chat || []),
               ],
             })

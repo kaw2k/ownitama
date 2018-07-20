@@ -25,6 +25,8 @@ export interface PlayerLobby {
   id: string
 }
 
+export type Presence = 'active' | 'away' | 'idle'
+
 export interface PlayerGame extends PlayerLobby {
   color: Color
   cards: [Card, Card]
@@ -42,7 +44,7 @@ export interface Game {
 
 export type Chat = ChatMessage[] | null
 
-export type ChatMessage = {playerName: string; message: string, id: string}
+export type ChatMessage = { playerName: string; message: string; id: string }
 
 export interface LobbyState {
   type: 'lobby'
@@ -79,11 +81,18 @@ export interface MainLobby {
 }
 
 export interface NotificationSettings {
-  chat?: boolean;
+  chat?: boolean
 }
 
-export type FirebaseState = LoadingState | GameState | LobbyState | MainLobby
+export type FirebaseGameState =
+  | LoadingState
+  | GameState
+  | LobbyState
+  | MainLobby
 
+export interface FirebaseUserState {
+  [userHash: string]: Presence
+}
 
 export interface LobbyLocalState {
   message: string
