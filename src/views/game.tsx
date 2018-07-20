@@ -94,6 +94,7 @@ export class Game extends React.Component<Props, State> {
           game={this.props.game}
           gameName={this.props.gameName}
           player={this.props.player}
+          userPresence={this.props.userPresence}
         />
       )
 

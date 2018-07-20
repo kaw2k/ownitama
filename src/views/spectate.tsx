@@ -4,6 +4,7 @@ import {
   PlayerLobby,
   LobbyState,
   Game as _Game,
+  FirebaseUserState,
 } from '../interfaces'
 import { CardView } from '../components/card'
 import { winningPlayer } from '../helpers'
