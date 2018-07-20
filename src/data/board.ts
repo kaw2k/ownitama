@@ -1,4 +1,4 @@
-import { Board, Piece } from 'interfaces'
+import { Board, Piece } from '../interfaces'
 
 export const InitialBoard: Board<Piece> = [
   [

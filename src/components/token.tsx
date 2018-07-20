@@ -5,11 +5,12 @@ export const Token: React.SFC<{
   piece: Piece
   disabled?: boolean
   onClick?: () => void
-}> = ({ piece: { type, color }, disabled, onClick }) => (
+  className?: string
+}> = ({ piece: { type, color }, disabled, onClick, className = '' }) => (
   <button
     disabled={disabled}
     onClick={onClick}
-    className={`token ${type} ${color}`}>
+    className={`token ${type} ${color} ${className}`}>
     <div />
   </button>
 )

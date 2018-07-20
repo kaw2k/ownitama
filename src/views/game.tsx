@@ -6,6 +6,7 @@ import {
   GameState,
   LobbyState,
   PlayerLobby,
+  Piece,
 } from '../interfaces'
 import * as React from 'react'
 import { Helmet } from 'react-helmet'
@@ -159,6 +160,22 @@ export class Game extends React.Component<Props, State> {
                       piece={tile}
                     />
                   )}
+
+                  {currentGame.lastMove &&
+                    equalCoordinates(currentGame.lastMove.origin, [
+                      x,
+                      y,
+                    ] as Coordinate<Absolute>) && (
+                      <Token
+                        className="last-move"
+                        disabled
+                        piece={
+                          currentGame.board[currentGame.lastMove.target[0]][
+                            currentGame.lastMove.target[1]
+                          ] as Piece
+                        }
+                      />
+                    )}
 
                   {moves.find(move => equalCoordinates(move, [x, y] as any)) &&
                     isActivePlayer &&
