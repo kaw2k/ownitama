@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Piece } from 'interfaces'
+import { Piece } from '../interfaces'
 
 export const Token: React.SFC<{
   piece: Piece

@@ -49,6 +49,7 @@
     "actions": "^1.3.0",
     "components": "^0.1.0",
     "config": "^1.30.0",
+    "data": "^0.6.1",
     "f": "^1.4.0",
     "firebase": "^5.2.0",
     "firebase-tools": "^3.19.1",

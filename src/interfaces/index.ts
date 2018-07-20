@@ -16,7 +16,6 @@ export type Board<T> = [Row<T>, Row<T>, Row<T>, Row<T>, Row<T>]
 export interface Card {
   name: string
   moves: Coordinate<Relative>[]
-  movesInverted: Coordinate<Relative>[]
   color: Color
 }
 

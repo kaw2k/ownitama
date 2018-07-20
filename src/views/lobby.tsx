@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { updateFirebaseGame } from '../helpers/firebase'
 import { PlayerLobby, LobbyState, Card, FirebaseUserState } from '../interfaces'
-import { Cards } from '../cards'
+import { Cards } from '../data/cards'
 import { CardView } from '../components/card'
 import { makeGame } from '../actions'
 import { Chat } from '../components/chat'

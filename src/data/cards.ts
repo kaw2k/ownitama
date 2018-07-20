@@ -1,4 +1,4 @@
-import { Card } from './interfaces'
+import { Card } from 'interfaces'
 
 export const Cards: Card[] = [
   {
@@ -164,11 +164,11 @@ export const Cards: Card[] = [
   {
     color: 'red',
     name: 'goat',
-    moves: [[1, 0], [0, 1], [-1,-1]]
+    moves: [[1, 0], [0, 1], [-1, -1]],
   },
   {
     color: 'blue',
     name: 'sheep',
-    moves: [[-1, 1], [0, -1], [1, 0]]
-  }
+    moves: [[-1, 1], [0, -1], [1, 0]],
+  },
 ]

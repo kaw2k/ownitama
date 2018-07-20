@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { Chat as ChatType, FirebaseUserState } from '../interfaces'
 import { PlayerName } from './player'
-import { hashUser } from '../helpers/firebase'
 
 interface Props {
   onSubmit: (message: string) => void

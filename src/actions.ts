@@ -6,8 +6,8 @@ import {
   LobbyState,
   PlayerLobby,
 } from './interfaces'
-import { Cards } from './cards'
-import { InitialBoard } from './board'
+import { Cards } from './data/cards'
+import { InitialBoard } from './data/board'
 import { clone } from './helpers/clone'
 import { possibleMoves, doesCardHaveMove } from './helpers/moves'
 import { equalCoordinates } from './helpers/coordinates'
