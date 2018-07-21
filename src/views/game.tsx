@@ -25,6 +25,7 @@ import {
 import { possibleMoves } from '../helpers/moves'
 import { askPermission, notifyChat, notifyTurn } from '../helpers/notify'
 import { Spectate } from './spectate'
+import { isPlayer } from 'helpers/player'
 
 const getCurrentGame = (game: GameState): _Game => {
   return game.game[0]
@@ -59,19 +60,6 @@ export class Game extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    const currentGame = getCurrentGame(this.props.game)
-    const previousGame = getCurrentGame(prevProps.game)
-    const you = this.props.player
-
-    if (currentGame.players[0].id !== previousGame.players[0].id) {
-      if (currentGame.players[0].id == you.id) {
-        document.title = `* ${document.title}`
-        notifyTurn()
-      } else if (document.title.includes('*')) {
-        document.title = `${document.title.slice(2)}`
-      }
-    }
-
     if (
       this.state.notifyChat &&
       (this.props.game.chat || []).length !==
@@ -88,9 +76,8 @@ export class Game extends React.Component<Props, State> {
     const { game, player } = this.props
     const currentGame = getCurrentGame(game)
 
-    const isUserPlaying = !!currentGame.players.find(
-      p => p.id === player.id && p.name === player.name
-    )
+    const isUserPlaying = !!currentGame.players.find(p => isPlayer(p, player))
+
     if (!isUserPlaying)
       return (
         <Spectate
@@ -101,16 +88,14 @@ export class Game extends React.Component<Props, State> {
         />
       )
 
-    const you =
-      currentGame.players[0].id === player.id
-        ? currentGame.players[0]
-        : currentGame.players[1]
-    const opponent =
-      currentGame.players[0].id === player.id
-        ? currentGame.players[1]
-        : currentGame.players[0]
+    const you = isPlayer(currentGame.players[0], player)
+      ? currentGame.players[0]
+      : currentGame.players[1]
+    const opponent = isPlayer(currentGame.players[0], player)
+      ? currentGame.players[1]
+      : currentGame.players[0]
 
-    const isActivePlayer = you.id === currentGame.players[0].id
+    const isActivePlayer = isPlayer(you, currentGame.players[0])
 
     const moves = this.state.origin
       ? possibleMoves(currentGame, this.state.origin)

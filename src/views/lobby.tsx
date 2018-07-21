@@ -6,6 +6,7 @@ import { CardView } from '../components/card'
 import { makeGame } from '../actions'
 import { Chat } from '../components/chat'
 import { PlayerName } from '../components/player'
+import { isPlayer } from '../helpers/player'
 
 interface Props {
   player: PlayerLobby
@@ -50,10 +51,7 @@ export class Lobby extends React.Component<Props, State> {
             <button
               className="action"
               disabled={
-                !lobby.players ||
-                !lobby.players.find(
-                  p => p.id === player.id && p.name === player.name
-                )
+                !lobby.players || !lobby.players.find(p => isPlayer(p, player))
               }
               onClick={() => {
                 updateFirebaseGame({
@@ -82,9 +80,7 @@ export class Lobby extends React.Component<Props, State> {
               disabled={
                 (!!lobby.players && lobby.players.length === 2) ||
                 (!!lobby.players &&
-                  !!lobby.players.find(
-                    p => p.id === player.id && p.name === player.name
-                  ))
+                  !!lobby.players.find(p => isPlayer(p, player)))
               }
               onClick={() =>
                 updateFirebaseGame({
@@ -127,8 +123,7 @@ export class Lobby extends React.Component<Props, State> {
                     player={p}
                     statuses={this.props.userPresence}
                   />
-                  {p.id === player.id &&
-                    p.name === player.name && <em>(pin: {player.id})</em>}{' '}
+                  {isPlayer(p, player) && <em>(pin: {player.id})</em>}{' '}
                 </li>
               ))}
           </ul>
