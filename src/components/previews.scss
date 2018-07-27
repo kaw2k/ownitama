@@ -1,0 +1,19 @@
+.game-previews {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+
+  h3 {
+    width: 100%;
+    text-align: left;
+  }
+
+  a {
+    display: block;
+
+    margin-right: 10px;
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
+}

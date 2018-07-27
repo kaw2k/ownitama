@@ -41,6 +41,11 @@ export interface Game {
   } | null
 }
 
+export interface GamePreview {
+  path: string
+  players: [PlayerLobby, PlayerLobby]
+}
+
 export type Chat = ChatMessage[] | null
 
 export type ChatMessage = { playerName: string; message: string; id: string }
@@ -95,4 +100,8 @@ export interface FirebaseUserState {
 
 export interface LobbyLocalState {
   message: string
+}
+
+export interface FirebasePreviewState {
+  [lobbyId: string]: GamePreview
 }

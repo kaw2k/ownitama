@@ -5,7 +5,7 @@ import { CardView } from '../components/card'
 import { Chat } from '../components/chat'
 import { Player } from '../components/player'
 import { Token } from '../components/token'
-import { updateFirebaseGame } from '../helpers/firebase'
+import { updateLobby } from '../helpers/firebase'
 import { isGameOver } from '../helpers/isGameOver'
 import {
   Game as _Game,
@@ -82,7 +82,7 @@ export class Spectate extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebaseGame({
+                  updateLobby({
                     type: 'game',
                     chat: null,
                     game: [makeGame(currentGame.players)],
@@ -93,7 +93,7 @@ export class Spectate extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebaseGame({
+                  updateLobby({
                     type: 'game',
                     chat: null,
                     game: [
@@ -110,7 +110,7 @@ export class Spectate extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebaseGame({
+                  updateLobby({
                     type: 'lobby',
                     players: currentGame.players,
                     cards: null,
@@ -126,7 +126,7 @@ export class Spectate extends React.Component<Props, State> {
               <button
                 className="action"
                 onClick={() => {
-                  updateFirebaseGame({
+                  updateLobby({
                     type: 'lobby',
                     chat: null,
                     players: null,
@@ -152,7 +152,7 @@ export class Spectate extends React.Component<Props, State> {
           chats={game.chat}
           userPresence={this.props.userPresence}
           onSubmit={message => {
-            updateFirebaseGame({
+            updateLobby({
               ...game,
               chat: [
                 { message, playerName: player.name, id: player.id },

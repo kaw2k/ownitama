@@ -7,6 +7,7 @@ import {
   PlayerLobby,
   Piece,
   PlayerGame,
+  GamePreview,
 } from '../interfaces'
 import * as React from 'react'
 import { Helmet } from 'react-helmet'
@@ -15,7 +16,7 @@ import { Chat } from '../components/chat'
 import { Player } from '../components/player'
 import { Token } from '../components/token'
 import { equalCoordinates } from '../helpers/coordinates'
-import { updateFirebaseGame } from '../helpers/firebase'
+import { updateLobby } from '../helpers/firebase'
 import { isGameOver } from '../helpers/isGameOver'
 import { possibleMoves } from '../helpers/moves'
 import { askPermission, notifyTurn } from '../helpers/notify'
@@ -23,12 +24,14 @@ import { Spectate } from './spectate'
 import { isPlayer } from '../helpers/player'
 import './game.scss'
 import { CardView } from '../components/card'
+import { Previews } from '../components/previews'
 
 interface Props {
   player: PlayerLobby
   game: GameState
   gameName: string
   userPresence: FirebaseUserState
+  previews: GamePreview[]
 }
 
 interface State {
@@ -175,7 +178,7 @@ export class Game extends React.Component<Props, State> {
                                 )
 
                                 if (typeof move === 'object') {
-                                  updateFirebaseGame({
+                                  updateLobby({
                                     ...this.props.game,
                                     game: [move, ...game.game],
                                   })
@@ -210,7 +213,7 @@ export class Game extends React.Component<Props, State> {
                   )
 
                   if (typeof move === 'object') {
-                    updateFirebaseGame({
+                    updateLobby({
                       ...this.props.game,
                       game: [move, ...game.game],
                     })
@@ -236,7 +239,7 @@ export class Game extends React.Component<Props, State> {
                 <button
                   className="action"
                   onClick={() => {
-                    updateFirebaseGame({
+                    updateLobby({
                       type: 'game',
                       chat: null,
                       game: [makeGame(currentGame.players)],
@@ -247,7 +250,7 @@ export class Game extends React.Component<Props, State> {
                 <button
                   className="action"
                   onClick={() => {
-                    updateFirebaseGame({
+                    updateLobby({
                       type: 'game',
                       chat: null,
                       game: [
@@ -264,7 +267,7 @@ export class Game extends React.Component<Props, State> {
                 <button
                   className="action"
                   onClick={() => {
-                    updateFirebaseGame({
+                    updateLobby({
                       type: 'lobby',
                       players: currentGame.players,
                       cards: null,
@@ -279,7 +282,7 @@ export class Game extends React.Component<Props, State> {
                 <button
                   className="action"
                   onClick={() => {
-                    updateFirebaseGame({
+                    updateLobby({
                       ...game,
                       game: game.game.slice(1),
                     })
@@ -291,7 +294,7 @@ export class Game extends React.Component<Props, State> {
                 <button
                   className="action"
                   onClick={() => {
-                    updateFirebaseGame({
+                    updateLobby({
                       type: 'lobby',
                       chat: null,
                       players: null,
@@ -304,12 +307,14 @@ export class Game extends React.Component<Props, State> {
             )}
           </div>
 
+          <Previews user={this.props.player} previews={this.props.previews} />
+
           <Chat
             player={this.props.player}
             chats={game.chat}
             userPresence={this.props.userPresence}
             onSubmit={message => {
-              updateFirebaseGame({
+              updateLobby({
                 ...game,
                 chat: [
                   { message, playerName: player.name, id: player.id },

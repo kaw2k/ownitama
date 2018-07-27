@@ -1,9 +1,14 @@
 import * as React from 'react'
-import { subscribeToFirebase, updateFirebaseGame } from '../helpers/firebase'
+import {
+  subscribeToLobby,
+  updateLobby,
+  subscribeToGamePreview,
+} from '../helpers/firebase'
 import {
   FirebaseGameState,
   LobbyStateDefault,
   FirebaseUserState,
+  GamePreview,
 } from '../interfaces'
 import { Game } from './game'
 import { Lobby } from './lobby'
@@ -11,34 +16,42 @@ import { getPlayer } from '../helpers/localstorage'
 import { Login } from './login'
 import { getPath } from '../helpers/url'
 import { MainLobby } from './mainLobby'
-import { setPresence } from '../helpers/firebase'
+import { subscribeToPresence } from '../helpers/firebase'
 
 const Loading = () => <div>Loading...</div>
 
 interface State {
   gameState: FirebaseGameState
   userState: FirebaseUserState
+  previewState: GamePreview[]
 }
 
 export class App extends React.Component<{}, State> {
-  state: State = { gameState: { type: 'loading' }, userState: {} }
+  state: State = {
+    gameState: { type: 'loading' },
+    userState: {},
+    previewState: [],
+  }
 
   componentDidMount() {
-    subscribeToFirebase({
-      gameState: state => {
-        const player = getPlayer()
-        if (state) {
-          this.setState({
-            gameState: { ...LobbyStateDefault, ...state } as any,
-          })
-        } else if (player) {
-          updateFirebaseGame({ ...LobbyStateDefault, players: [player] })
-        }
-      },
-      presenceState: state => {
-        this.setState({ userState: state })
-      },
+    const player = getPlayer()
+    if (!player) return
+
+    subscribeToLobby(state => {
+      const player = getPlayer()
+      if (state) {
+        this.setState({
+          gameState: { ...LobbyStateDefault, ...state } as any,
+        })
+      } else if (player) {
+        updateLobby({ ...LobbyStateDefault, players: [player] })
+      }
     })
+
+    subscribeToPresence(player, state => this.setState({ userState: state }))
+    subscribeToGamePreview(player, state =>
+      this.setState({ previewState: state })
+    )
   }
 
   render() {
@@ -46,12 +59,10 @@ export class App extends React.Component<{}, State> {
 
     if (!player) return <Login />
 
-    setPresence(player)
-
     if (this.state.gameState.type === 'loading') return <Loading />
 
     if (this.state.gameState.type === 'main-lobby')
-      return <MainLobby player={player} />
+      return <MainLobby player={player} previews={this.state.previewState} />
 
     if (this.state.gameState.type === 'game')
       return (
@@ -60,6 +71,7 @@ export class App extends React.Component<{}, State> {
           game={this.state.gameState}
           gameName={getPath()}
           userPresence={this.state.userState}
+          previews={this.state.previewState}
         />
       )
 
@@ -70,6 +82,7 @@ export class App extends React.Component<{}, State> {
           lobby={this.state.gameState}
           lobbyName={getPath()}
           userPresence={this.state.userState}
+          previews={this.state.previewState}
         />
       )
   }

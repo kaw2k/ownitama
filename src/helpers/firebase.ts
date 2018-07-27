@@ -1,9 +1,33 @@
 import firebase from 'firebase'
 import { CONFIG } from '../config'
-import { FirebaseGameState, PlayerLobby, Presence } from '../interfaces'
+import {
+  FirebaseGameState,
+  PlayerLobby,
+  Presence,
+  GamePreview,
+  FirebasePreviewState,
+} from '../interfaces'
 import { getPath } from './url'
+import { values } from './values'
+import { isPlayer } from './player'
+import { clone } from './clone'
 const IdleJs = require('idle-js')
 
+// ===========================================
+// CONSTANTS / HELPERS
+// ===========================================
+const firebaseRoutes = {
+  users: () => 'users/',
+  games: (path: string = '') => `game/${path}`,
+  gamePreviews: (path: string = '') => `preview/${path}`,
+}
+
+export const hashUser = ({ name, id }: PlayerLobby): string =>
+  encodeURIComponent(`${name} ${id}`)
+
+// ===========================================
+// INITIALIZE FIREBASE
+// ===========================================
 if (!firebase.apps.length) {
   firebase.initializeApp({
     apiKey: CONFIG.apiKey,
@@ -17,37 +41,55 @@ if (!firebase.apps.length) {
 
 const database = firebase.database()
 
-export const updateFirebaseGame = (props: FirebaseGameState) => {
+// ===========================================
+// LOBBY
+// ===========================================
+export const subscribeToLobby = (
+  onLobbyChange: (state: FirebaseGameState | null) => void
+) => {
+  const path = getPath()
+  if (!path.length) return onLobbyChange({ type: 'main-lobby' })
+
+  database.ref(firebaseRoutes.games(path)).on('value', snapshot => {
+    onLobbyChange(snapshot && snapshot.val())
+  })
+}
+
+export const updateLobby = (props: FirebaseGameState) => {
+  // Validate the path
   const path = getPath()
   if (!path) return Promise.reject(null)
-  return database.ref('game/' + path).update(props || {})
+
+  // Set the preview for the game
+  const gamePreviewPath = firebaseRoutes.gamePreviews(path)
+  if (props.type === 'lobby') {
+    database.ref(gamePreviewPath).remove()
+  } else if (props.type === 'game') {
+    const players = props.game[0].players
+    const preview: GamePreview = {
+      path,
+      players: [
+        { id: players[0].id, name: players[0].name },
+        { id: players[1].id, name: players[1].name },
+      ],
+    }
+    database.ref(gamePreviewPath).set(preview)
+  }
+
+  // Set the game
+  return database.ref(firebaseRoutes.games(path)).update(props || {})
 }
 
-export const subscribeToFirebase = ({
-  gameState,
-  presenceState,
-}: {
-  gameState: (state: FirebaseGameState | null) => void
-  presenceState: (users: { [userHash: string]: Presence }) => void
-}) => {
-  const path = getPath()
-  if (!path.length) return gameState({ type: 'main-lobby' })
-
-  database.ref('game/' + path).on('value', snapshot => {
-    gameState(snapshot && snapshot.val())
-  })
-
-  database.ref('users').on('value', snapshot => {
-    presenceState((snapshot && snapshot.val()) || {})
-  })
-}
-
-export const hashUser = ({ name, id }: PlayerLobby): string =>
-  encodeURIComponent(`${name} ${id}`)
-
+// ===========================================
+// PRESENCE
 // https://firebase.googleblog.com/2013/06/how-to-build-presence-system.html
+// ===========================================
 let isPresenceSetUp: boolean = false
-export const setPresence = (user: PlayerLobby) => {
+
+export const subscribeToPresence = (
+  user: PlayerLobby,
+  onPresenceChange: (users: { [userHash: string]: Presence }) => void
+) => {
   if (isPresenceSetUp) return
 
   isPresenceSetUp = true
@@ -73,4 +115,28 @@ export const setPresence = (user: PlayerLobby) => {
     onHide: () => setUserPresence('away'),
     onShow: () => setUserPresence('active'),
   }).start()
+
+  database.ref(firebaseRoutes.users()).on('value', snapshot => {
+    onPresenceChange((snapshot && snapshot.val()) || {})
+  })
+}
+
+// ===========================================
+// GAME PREVIEW
+// ===========================================
+export const subscribeToGamePreview = (
+  user: PlayerLobby,
+  onGamePreviewChange: (state: GamePreview[]) => void
+) => {
+  database.ref(firebaseRoutes.gamePreviews()).on('value', snapshot => {
+    const isActivePlayer = isPlayer(user)
+
+    const previewObj: FirebasePreviewState = (snapshot && snapshot.val()) || {}
+
+    const previews = values(previewObj).filter(
+      game => isActivePlayer(game.players[0]) || isActivePlayer(game.players[1])
+    )
+
+    onGamePreviewChange(previews)
+  })
 }

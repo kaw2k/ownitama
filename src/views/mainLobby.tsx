@@ -1,11 +1,13 @@
 import * as React from 'react'
-import { PlayerLobby } from '../interfaces'
+import { PlayerLobby, GamePreview } from '../interfaces'
 import { setPlayer } from '../helpers/localstorage'
 import Helmet from 'react-helmet'
 import './mainLobby.scss'
+import { Previews } from '../components/previews'
 
 interface Props {
   player: PlayerLobby
+  previews: GamePreview[]
 }
 
 export class MainLobby extends React.Component<Props> {
@@ -19,7 +21,7 @@ export class MainLobby extends React.Component<Props> {
   }
 
   render() {
-    const { player } = this.props
+    const { player, previews } = this.props
 
     return (
       <div className="main-lobby">
@@ -57,6 +59,8 @@ export class MainLobby extends React.Component<Props> {
             logout
           </button>
         </form>
+
+        <Previews user={player} previews={previews} />
       </div>
     )
   }

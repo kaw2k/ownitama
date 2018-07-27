@@ -48,6 +48,7 @@
     "components": "^0.1.0",
     "firebase": "^5.2.0",
     "firebase-tools": "^3.19.1",
+    "helpers": "^0.0.6",
     "idle-js": "^0.1.3",
     "notifyjs": "^3.0.0",
     "parcel-bundler": "^1.9.4",

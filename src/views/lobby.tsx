@@ -1,6 +1,12 @@
 import * as React from 'react'
-import { updateFirebaseGame } from '../helpers/firebase'
-import { PlayerLobby, LobbyState, Card, FirebaseUserState } from '../interfaces'
+import { updateLobby } from '../helpers/firebase'
+import {
+  PlayerLobby,
+  LobbyState,
+  Card,
+  FirebaseUserState,
+  GamePreview,
+} from '../interfaces'
 import { Cards } from '../data/cards'
 import { CardView } from '../components/card'
 import { makeGame } from '../actions'
@@ -9,12 +15,14 @@ import { PlayerName } from '../components/player'
 import { isPlayer } from '../helpers/player'
 import Helmet from 'react-helmet'
 import './lobby.scss'
+import { Previews } from '../components/previews'
 
 interface Props {
   player: PlayerLobby
   lobby: LobbyState
   lobbyName: string
   userPresence: FirebaseUserState
+  previews: GamePreview[]
 }
 
 interface State {
@@ -43,7 +51,7 @@ export class Lobby extends React.Component<Props, State> {
               className="action"
               onClick={() => {
                 this.setState({ showCustomCards: false })
-                updateFirebaseGame({
+                updateLobby({
                   cards: null,
                   chat: null,
                   type: 'lobby',
@@ -58,7 +66,7 @@ export class Lobby extends React.Component<Props, State> {
               className="action"
               disabled={!lobby.players || !lobby.players.find(isPlayer(player))}
               onClick={() => {
-                updateFirebaseGame({
+                updateLobby({
                   ...lobby,
                   players:
                     lobby.players &&
@@ -86,7 +94,7 @@ export class Lobby extends React.Component<Props, State> {
                 (!!lobby.players && !!lobby.players.find(isPlayer(player)))
               }
               onClick={() =>
-                updateFirebaseGame({
+                updateLobby({
                   ...lobby,
                   players: lobby.players
                     ? [lobby.players[0], player]
@@ -103,7 +111,7 @@ export class Lobby extends React.Component<Props, State> {
               onClick={() => {
                 lobby.players &&
                   lobby.players.length === 2 &&
-                  updateFirebaseGame({
+                  updateLobby({
                     type: 'game',
                     game: [makeGame(lobby.players, lobby.cards)],
                     chat: null,
@@ -132,6 +140,8 @@ export class Lobby extends React.Component<Props, State> {
           </ul>
         </div>
 
+        <Previews previews={this.props.previews} user={this.props.player} />
+
         {showCustomCards && (
           <>
             <div className="section">
@@ -143,7 +153,7 @@ export class Lobby extends React.Component<Props, State> {
                     key={card.name}
                     className="card-button"
                     onClick={() =>
-                      updateFirebaseGame({
+                      updateLobby({
                         ...lobby,
                         cards:
                           lobby.cards &&
@@ -172,7 +182,7 @@ export class Lobby extends React.Component<Props, State> {
                     key={card.name}
                     disabled={!!lobby.cards && lobby.cards.length === 5}
                     onClick={() => {
-                      updateFirebaseGame({
+                      updateLobby({
                         ...lobby,
                         cards: (lobby.cards || ([] as any)).concat(card),
                       })
@@ -189,7 +199,7 @@ export class Lobby extends React.Component<Props, State> {
           player={this.props.player}
           userPresence={this.props.userPresence}
           onSubmit={message => {
-            updateFirebaseGame({
+            updateLobby({
               ...lobby,
               chat: [
                 { message, playerName: player.name, id: player.id },
