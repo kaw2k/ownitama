@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { setPlayer } from '../helpers/localstorage'
+import './login.scss'
 
 export class Login extends React.Component {
   name: HTMLInputElement | null = null

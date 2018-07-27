@@ -1,0 +1,30 @@
+@mixin token($width) {
+  border-radius: 50%;
+
+  width: $width;
+  height: $width;
+
+  position: absolute;
+  top: (100 - $width) / 2;
+  left: (100 - $width) / 2;
+}
+
+.token {
+  @include token(40%);
+
+  &.master {
+    @include token(80%);
+  }
+
+  &.red {
+    border: 3px solid black;
+  }
+
+  &.blue {
+    border: 3px dotted black;
+  }
+
+  &.last-move {
+    opacity: 0.05;
+  }
+}

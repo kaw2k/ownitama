@@ -7,6 +7,8 @@ import { makeGame } from '../actions'
 import { Chat } from '../components/chat'
 import { PlayerName } from '../components/player'
 import { isPlayer } from '../helpers/player'
+import Helmet from 'react-helmet'
+import './lobby.scss'
 
 interface Props {
   player: PlayerLobby
@@ -27,6 +29,10 @@ export class Lobby extends React.Component<Props, State> {
 
     return (
       <div className="lobby">
+        <Helmet>
+          <title>{`${lobbyName} - Ownitama`}</title>
+        </Helmet>
+
         <h1>Lobby: {lobbyName}</h1>
 
         <div className="section">
@@ -50,9 +56,7 @@ export class Lobby extends React.Component<Props, State> {
 
             <button
               className="action"
-              disabled={
-                !lobby.players || !lobby.players.find(p => isPlayer(p, player))
-              }
+              disabled={!lobby.players || !lobby.players.find(isPlayer(player))}
               onClick={() => {
                 updateFirebaseGame({
                   ...lobby,
@@ -79,8 +83,7 @@ export class Lobby extends React.Component<Props, State> {
               className="action"
               disabled={
                 (!!lobby.players && lobby.players.length === 2) ||
-                (!!lobby.players &&
-                  !!lobby.players.find(p => isPlayer(p, player)))
+                (!!lobby.players && !!lobby.players.find(isPlayer(player)))
               }
               onClick={() =>
                 updateFirebaseGame({
@@ -183,6 +186,7 @@ export class Lobby extends React.Component<Props, State> {
         )}
 
         <Chat
+          player={this.props.player}
           userPresence={this.props.userPresence}
           onSubmit={message => {
             updateFirebaseGame({

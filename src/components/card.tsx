@@ -1,14 +1,17 @@
 import * as React from 'react'
 import { Card as CardProps, Board } from '../interfaces'
+import './card.scss'
 
 interface Props {
   card: CardProps
   invert?: boolean
+  className?: string
 }
 
 export const CardView: React.SFC<Props> = ({
   card: { name, moves, color },
   invert,
+  className = '',
 }) => {
   let grid: Board<'black' | 'grey'> = [
     [false, false, false, false, false],
@@ -25,7 +28,7 @@ export const CardView: React.SFC<Props> = ({
   grid[2][2] = 'black'
 
   return (
-    <div className={`card  ${invert ? 'invert' : ''}`}>
+    <div className={`card  ${invert ? 'invert' : ''} ${className}`}>
       <div className="grid">
         {grid.map((row, x) => (
           <ul key={`${name}-${x}`}>

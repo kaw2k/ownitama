@@ -1,0 +1,15 @@
+$padding: 10px;
+
+.player {
+  width: 100%;
+  position: relative;
+  text-align: center;
+
+  button + button {
+    margin-left: $padding;
+  }
+
+  &.them {
+    transform: rotate(180deg);
+  }
+}

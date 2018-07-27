@@ -1,0 +1,25 @@
+.chat {
+  margin-top: 10px;
+  flex-grow: 1;
+
+  .message {
+    width: 100%;
+  }
+
+  .notify {
+    margin-right: 5px;
+  }
+
+  li {
+    padding: 3px 7px;
+
+    &:nth-child(2n) {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  strong {
+    display: inline-block;
+    margin-right: 5px;
+  }
+}

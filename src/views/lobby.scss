@@ -1,0 +1,19 @@
+.lobby {
+  margin: 0 auto;
+  max-width: 600px;
+
+  .cards {
+    display: grid;
+    grid-gap: 1.5 * 10px;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: flex-start;
+  }
+
+  button + button {
+    margin-left: 10px;
+  }
+}
+
+.section + .section {
+  margin-top: 10px;
+}

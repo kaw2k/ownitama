@@ -3,11 +3,13 @@ import { Game, Piece } from '../interfaces'
 export function isGameOver(game: Game): false | 'red' | 'blue' {
   // Red has touched blue's stairs
   const blueStairs = game.board[0][2]
-  if (blueStairs && blueStairs.color === 'red') return 'red'
+  if (blueStairs && blueStairs.color === 'red' && blueStairs.type === 'master')
+    return 'red'
 
   // Blue has touched red's stairs
   const redStairs = game.board[4][2]
-  if (redStairs && redStairs.color === 'blue') return 'blue'
+  if (redStairs && redStairs.color === 'blue' && redStairs.type === 'master')
+    return 'blue'
 
   const kings = [
     ...game.board[0],

@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Piece } from '../interfaces'
+import './token.scss'
 
 export const Token: React.SFC<{
   piece: Piece
@@ -10,7 +11,6 @@ export const Token: React.SFC<{
   <button
     disabled={disabled}
     onClick={onClick}
-    className={`token ${type} ${color} ${className}`}>
-    <div />
-  </button>
+    className={`token ${type} ${color} ${className}`}
+  />
 )

@@ -1,8 +1,15 @@
 import * as React from 'react'
-import { Chat as ChatType, FirebaseUserState } from '../interfaces'
+import { Chat as ChatType, FirebaseUserState, PlayerLobby } from '../interfaces'
 import { PlayerName } from './player'
+import {
+  setNotificationSettings,
+  getNotificationSettings,
+} from '../helpers/localstorage'
+import { notifyChat } from '../helpers/notify'
+import './chat.scss'
 
 interface Props {
+  player: PlayerLobby
   onSubmit: (message: string) => void
   chats: ChatType
   userPresence: FirebaseUserState
@@ -10,10 +17,23 @@ interface Props {
 
 interface State {
   message: string
+  notifyChat?: boolean
 }
 
 export class Chat extends React.Component<Props, State> {
-  state: State = { message: '' }
+  state: State = { message: '', notifyChat: getNotificationSettings().chat }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (
+      this.state.notifyChat &&
+      (this.props.chats || []).length !== (prevProps.chats || []).length &&
+      this.props.chats &&
+      this.props.chats[0] &&
+      this.props.chats[0].id !== this.props.player.id
+    ) {
+      notifyChat(this.props.chats![0])
+    }
+  }
 
   onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -32,10 +52,24 @@ export class Chat extends React.Component<Props, State> {
 
     return (
       <div className="chat">
+        <label>
+          <input
+            className="notify"
+            type="checkbox"
+            checked={this.state.notifyChat}
+            onChange={event => {
+              setNotificationSettings({ chat: true })
+              this.setState({ notifyChat: event.target.checked })
+            }}
+          />{' '}
+          Notify on Chat
+        </label>
+
         <form onSubmit={this.onSubmit}>
           <label>
             <strong>Chat: </strong>
             <input
+              className="message"
               placeholder="message"
               value={this.state.message}
               onChange={this.onChange}

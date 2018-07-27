@@ -1,0 +1,22 @@
+.login {
+  width: 200px;
+  margin: 0 auto;
+  text-align: center;
+
+  form > * + * {
+    margin-top: 10px;
+  }
+
+  label {
+    text-align: left;
+  }
+
+  strong,
+  label,
+  button,
+  em,
+  input {
+    display: block;
+    width: 100%;
+  }
+}

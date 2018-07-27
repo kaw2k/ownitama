@@ -1,6 +1,8 @@
 import * as React from 'react'
 import { PlayerLobby } from '../interfaces'
 import { setPlayer } from '../helpers/localstorage'
+import Helmet from 'react-helmet'
+import './mainLobby.scss'
 
 interface Props {
   player: PlayerLobby
@@ -21,10 +23,14 @@ export class MainLobby extends React.Component<Props> {
 
     return (
       <div className="main-lobby">
+        <Helmet>
+          <title>Ownitama</title>
+        </Helmet>
+
         <form onSubmit={this.joinLobby}>
           <h1>main lobby</h1>
 
-          <div className="section">
+          <div>
             <strong>{player.name}</strong> <em>(pin: {player.id})</em>
           </div>
 

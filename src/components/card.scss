@@ -1,0 +1,55 @@
+$tile-size: 15px;
+$border: 1px solid black;
+
+.card {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+
+  .grid {
+    border: $border;
+    border-radius: 3px;
+  }
+
+  ul {
+    width: 5 * $tile-size;
+
+    border-top: $border;
+    &:first-of-type {
+      border-top: none;
+    }
+  }
+
+  li {
+    width: $tile-size;
+    height: $tile-size;
+    display: inline-block;
+
+    border-right: $border;
+    &:last-of-type {
+      border-right: none;
+    }
+  }
+
+  .headers,
+  .grid {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .headers {
+    padding-left: $tile-size;
+  }
+
+  .black {
+    background-color: black;
+  }
+  .grey {
+    background-color: grey;
+  }
+}
+
+button:disabled .card {
+  color: black;
+}

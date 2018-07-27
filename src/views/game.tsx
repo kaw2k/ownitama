@@ -2,34 +2,27 @@ import {
   Absolute,
   Coordinate,
   FirebaseUserState,
-  Game as _Game,
   GameState,
   LobbyState,
   PlayerLobby,
   Piece,
+  PlayerGame,
 } from '../interfaces'
 import * as React from 'react'
 import { Helmet } from 'react-helmet'
 import { makeGame, makeMove } from '../actions'
-import { CardView } from '../components/card'
 import { Chat } from '../components/chat'
 import { Player } from '../components/player'
 import { Token } from '../components/token'
 import { equalCoordinates } from '../helpers/coordinates'
 import { updateFirebaseGame } from '../helpers/firebase'
 import { isGameOver } from '../helpers/isGameOver'
-import {
-  getNotificationSettings,
-  setNotificationSettings,
-} from '../helpers/localstorage'
 import { possibleMoves } from '../helpers/moves'
-import { askPermission, notifyChat, notifyTurn } from '../helpers/notify'
+import { askPermission, notifyTurn } from '../helpers/notify'
 import { Spectate } from './spectate'
-import { isPlayer } from 'helpers/player'
-
-const getCurrentGame = (game: GameState): _Game => {
-  return game.game[0]
-}
+import { isPlayer } from '../helpers/player'
+import './game.scss'
+import { CardView } from '../components/card'
 
 interface Props {
   player: PlayerLobby
@@ -42,7 +35,6 @@ interface State {
   message: string
   origin: Coordinate<Absolute> | null
   decideCard: Coordinate<Absolute> | null
-  notifyChat?: boolean
 }
 
 export class Game extends React.Component<Props, State> {
@@ -52,33 +44,17 @@ export class Game extends React.Component<Props, State> {
     message: '',
     origin: null,
     decideCard: null,
-    notifyChat: getNotificationSettings().chat,
   }
 
   componentDidMount() {
     askPermission()
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    if (
-      this.state.notifyChat &&
-      (this.props.game.chat || []).length !==
-        (prevProps.game.chat || []).length &&
-      this.props.game.chat &&
-      this.props.game.chat[0] &&
-      this.props.game.chat[0].id !== this.props.player.id
-    ) {
-      notifyChat(this.props.game.chat![0])
-    }
-  }
-
   render() {
     const { game, player } = this.props
-    const currentGame = getCurrentGame(game)
+    const currentGame = game.game[0]
 
-    const isUserPlaying = !!currentGame.players.find(p => isPlayer(p, player))
-
-    if (!isUserPlaying)
+    if (!currentGame.players.find(isPlayer(player))) {
       return (
         <Spectate
           game={this.props.game}
@@ -87,15 +63,18 @@ export class Game extends React.Component<Props, State> {
           userPresence={this.props.userPresence}
         />
       )
+    }
 
-    const you = isPlayer(currentGame.players[0], player)
-      ? currentGame.players[0]
-      : currentGame.players[1]
-    const opponent = isPlayer(currentGame.players[0], player)
-      ? currentGame.players[1]
-      : currentGame.players[0]
-
-    const isActivePlayer = isPlayer(you, currentGame.players[0])
+    let you: PlayerGame, opponent: PlayerGame, isActivePlayer: boolean
+    if (isPlayer(currentGame.players[0], player)) {
+      isActivePlayer = true
+      you = currentGame.players[0]
+      opponent = currentGame.players[1]
+    } else {
+      isActivePlayer = false
+      you = currentGame.players[1]
+      opponent = currentGame.players[0]
+    }
 
     const moves = this.state.origin
       ? possibleMoves(currentGame, this.state.origin)
@@ -112,181 +91,191 @@ export class Game extends React.Component<Props, State> {
     }
 
     return (
-      <div className="game">
+      <>
         <Helmet>
           <title>
             {`${isActivePlayer ? '* ' : ''}${this.props.gameName} - Ownitama`}
           </title>
         </Helmet>
 
-        <div className={`board ${you.color === 'blue' ? 'invert' : ''}`}>
-          {currentGame.board.map((row, x) => (
-            <ul>
-              {row.map((tile, y) => (
-                <li className={`tile-${x}-${y}`}>
-                  {tile && (
-                    <Token
-                      disabled={
-                        !isUserPlaying ||
-                        tile.color !== you.color ||
-                        !isActivePlayer ||
-                        !!gameOver
-                      }
-                      onClick={() =>
-                        this.setState({
-                          decideCard: null,
-                          origin:
-                            this.state.origin &&
-                            equalCoordinates([x, y] as any, this.state.origin)
-                              ? null
-                              : ([x, y] as any),
-                        })
-                      }
-                      piece={tile}
-                    />
-                  )}
+        <div>
+          <div className={`game-container`}>
+            <CardView
+              className="spare-card"
+              card={currentGame.card}
+              invert={!isActivePlayer}
+            />
+            <div className="game">
+              <Player
+                statuses={this.props.userPresence}
+                player={opponent}
+                invert
+              />
 
-                  {/* Display the last move of the game */}
-                  {currentGame.lastMove &&
-                    equalCoordinates(currentGame.lastMove.origin, [
-                      x,
-                      y,
-                    ] as Coordinate<Absolute>) && (
-                      <Token
-                        className="last-move"
-                        disabled
-                        piece={
-                          currentGame.board[currentGame.lastMove.target[0]][
-                            currentGame.lastMove.target[1]
-                          ] as Piece
-                        }
-                      />
-                    )}
+              <div className={`board ${you.color === 'blue' ? 'invert' : ''}`}>
+                {currentGame.board.map((row, x) => (
+                  <ul>
+                    {row.map((tile, y) => (
+                      <li className={`tile-${x}-${y}`}>
+                        {tile && (
+                          <Token
+                            disabled={
+                              tile.color !== you.color ||
+                              !isActivePlayer ||
+                              !!gameOver
+                            }
+                            onClick={() =>
+                              this.setState({
+                                decideCard: null,
+                                origin:
+                                  this.state.origin &&
+                                  equalCoordinates(
+                                    [x, y] as any,
+                                    this.state.origin
+                                  )
+                                    ? null
+                                    : ([x, y] as any),
+                              })
+                            }
+                            piece={tile}
+                          />
+                        )}
 
-                  {moves.find(move => equalCoordinates(move, [x, y] as any)) &&
-                    isActivePlayer &&
-                    isUserPlaying && (
-                      <button
-                        className="possible-move"
-                        type="button"
-                        onClick={() => {
-                          if (!this.state.origin) return
+                        {/* Display the last move of the game */}
+                        {currentGame.lastMove &&
+                          equalCoordinates(currentGame.lastMove.origin, [
+                            x,
+                            y,
+                          ] as Coordinate<Absolute>) && (
+                            <Token
+                              className="last-move"
+                              disabled
+                              piece={
+                                currentGame.board[
+                                  currentGame.lastMove.target[0]
+                                ][currentGame.lastMove.target[1]] as Piece
+                              }
+                            />
+                          )}
 
-                          const move = makeMove(
-                            currentGame,
-                            this.state.origin as any,
-                            [x, y] as any
-                          )
+                        {moves.find(move =>
+                          equalCoordinates(move, [x, y] as any)
+                        ) &&
+                          isActivePlayer && (
+                            <button
+                              className="possible-move"
+                              type="button"
+                              onClick={() => {
+                                if (!this.state.origin) return
 
-                          if (typeof move === 'object') {
-                            updateFirebaseGame({
-                              ...this.props.game,
-                              game: [move, ...game.game],
-                            })
-                            this.setState({ origin: null, decideCard: null })
-                          } else {
-                            this.setState({ decideCard: [x, y] as any })
-                          }
-                        }}
-                      />
-                    )}
-                </li>
-              ))}
-            </ul>
-          ))}
+                                const move = makeMove(
+                                  currentGame,
+                                  this.state.origin as any,
+                                  [x, y] as any
+                                )
+
+                                if (typeof move === 'object') {
+                                  updateFirebaseGame({
+                                    ...this.props.game,
+                                    game: [move, ...game.game],
+                                  })
+                                  this.setState({
+                                    origin: null,
+                                    decideCard: null,
+                                  })
+                                } else {
+                                  this.setState({ decideCard: [x, y] as any })
+                                }
+                              }}
+                            />
+                          )}
+                      </li>
+                    ))}
+                  </ul>
+                ))}
+              </div>
+
+              <Player
+                statuses={this.props.userPresence}
+                player={you}
+                decideCard={!!this.state.decideCard}
+                cardDecided={card => {
+                  if (!this.state.origin || !this.state.decideCard) return
+
+                  const move = makeMove(
+                    currentGame,
+                    this.state.origin,
+                    this.state.decideCard,
+                    card
+                  )
+
+                  if (typeof move === 'object') {
+                    updateFirebaseGame({
+                      ...this.props.game,
+                      game: [move, ...game.game],
+                    })
+                    this.setState({ origin: null })
+                  }
+                  this.setState({ origin: null, decideCard: null })
+                }}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="game-meta">
-          {this.state.decideCard && isActivePlayer ? (
-            <>
-              <h3>which card did you want to use?</h3>
-
-              <button
-                className="cancel"
-                onClick={() => {
-                  this.setState({ origin: null, decideCard: null })
-                }}>
-                cancel
-              </button>
-
-              {you.cards.map(card => (
+          <div className="game-actions">
+            {gameOver ? (
+              <>
+                <h1>
+                  {currentGame.players[0].color === gameOver
+                    ? currentGame.players[0].name
+                    : currentGame.players[1].name}{' '}
+                  wins!
+                </h1>
                 <button
-                  key={card.name}
+                  className="action"
                   onClick={() => {
-                    if (!this.state.origin || !this.state.decideCard) return
-
-                    const move = makeMove(
-                      currentGame,
-                      this.state.origin,
-                      this.state.decideCard,
-                      card
-                    )
-
-                    if (typeof move === 'object') {
-                      updateFirebaseGame({
-                        ...this.props.game,
-                        game: [move, ...game.game],
-                      })
-                      this.setState({ origin: null })
-                    }
-                    this.setState({ origin: null, decideCard: null })
+                    updateFirebaseGame({
+                      type: 'game',
+                      chat: null,
+                      game: [makeGame(currentGame.players)],
+                    })
                   }}>
-                  <CardView card={card} />
+                  new game
                 </button>
-              ))}
-            </>
-          ) : gameOver ? (
-            <>
-              <h1>
-                {currentGame.players[0].color === gameOver
-                  ? currentGame.players[0].name
-                  : currentGame.players[1].name}{' '}
-                wins!
-              </h1>
-              <button
-                className="action"
-                onClick={() => {
-                  updateFirebaseGame({
-                    type: 'game',
-                    chat: null,
-                    game: [makeGame(currentGame.players)],
-                  })
-                }}>
-                rematch (new cards)
-              </button>
-              <button
-                className="action"
-                onClick={() => {
-                  updateFirebaseGame({
-                    type: 'game',
-                    chat: null,
-                    game: [
-                      makeGame(currentGame.players, [
-                        currentGame.card,
-                        ...currentGame.players[0].cards,
-                        ...currentGame.players[1].cards,
-                      ] as LobbyState['cards']),
-                    ],
-                  })
-                }}>
-                rematch (same cards)
-              </button>
-              <button
-                className="action"
-                onClick={() => {
-                  updateFirebaseGame({
-                    type: 'lobby',
-                    players: currentGame.players,
-                    cards: null,
-                    chat: null,
-                  })
-                }}>
-                back to lobby
-              </button>
-            </>
-          ) : (
-            <>
-              {isUserPlaying && (
+                <button
+                  className="action"
+                  onClick={() => {
+                    updateFirebaseGame({
+                      type: 'game',
+                      chat: null,
+                      game: [
+                        makeGame(currentGame.players, [
+                          currentGame.card,
+                          ...currentGame.players[0].cards,
+                          ...currentGame.players[1].cards,
+                        ] as LobbyState['cards']),
+                      ],
+                    })
+                  }}>
+                  rematch
+                </button>
+                <button
+                  className="action"
+                  onClick={() => {
+                    updateFirebaseGame({
+                      type: 'lobby',
+                      players: currentGame.players,
+                      cards: null,
+                      chat: null,
+                    })
+                  }}>
+                  back to lobby
+                </button>
+              </>
+            ) : (
+              <>
                 <button
                   className="action"
                   onClick={() => {
@@ -298,61 +287,39 @@ export class Game extends React.Component<Props, State> {
                   disabled={isActivePlayer || game.game.length === 1}>
                   undo
                 </button>
-              )}
 
-              <button
-                className="action"
-                onClick={() => {
-                  updateFirebaseGame({
-                    type: 'lobby',
-                    chat: null,
-                    players: null,
-                    cards: null,
-                  })
-                }}>
-                end game
-              </button>
+                <button
+                  className="action"
+                  onClick={() => {
+                    updateFirebaseGame({
+                      type: 'lobby',
+                      chat: null,
+                      players: null,
+                      cards: null,
+                    })
+                  }}>
+                  end game
+                </button>
+              </>
+            )}
+          </div>
 
-              <Player
-                statuses={this.props.userPresence}
-                invert
-                player={opponent}
-              />
-              <div className="spare-card">
-                <h3 className="turn-name">{isActivePlayer ? 'you' : 'them'}</h3>
-                <CardView invert={!isActivePlayer} card={currentGame.card} />
-              </div>
-              <Player statuses={this.props.userPresence} player={you} />
-            </>
-          )}
-        </div>
-
-        <div style={{ width: '100%', marginTop: '1rem' }}>
-          <input
-            type="checkbox"
-            checked={this.state.notifyChat}
-            onChange={event => {
-              setNotificationSettings({ chat: true })
-              this.setState({ notifyChat: event.target.checked })
+          <Chat
+            player={this.props.player}
+            chats={game.chat}
+            userPresence={this.props.userPresence}
+            onSubmit={message => {
+              updateFirebaseGame({
+                ...game,
+                chat: [
+                  { message, playerName: player.name, id: player.id },
+                  ...(game.chat || []),
+                ],
+              })
             }}
-          />{' '}
-          Notify on Chat
+          />
         </div>
-
-        <Chat
-          chats={game.chat}
-          userPresence={this.props.userPresence}
-          onSubmit={message => {
-            updateFirebaseGame({
-              ...game,
-              chat: [
-                { message, playerName: player.name, id: player.id },
-                ...(game.chat || []),
-              ],
-            })
-          }}
-        />
-      </div>
+      </>
     )
   }
 }
