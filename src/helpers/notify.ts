@@ -2,10 +2,6 @@ import Notify from 'notifyjs'
 import { getPath } from './url'
 import { ChatMessage } from '../interfaces'
 
-const turnNotice = new Notify('Ownitama', {
-  body: `${getPath()} - It's your turn`,
-})
-
 export const askPermission = () => {
   if (
     Notify.needsPermission &&
@@ -26,7 +22,11 @@ export const notifyChat = (message: ChatMessage) => {
   }
 }
 
-export const notifyTurn = () => {
+export const notifyTurn = (path = getPath()) => {
+  const turnNotice = new Notify('Ownitama', {
+    body: `It's your turn: ${path}`,
+  })
+
   if (!Notify.needsPermission) {
     turnNotice.show()
   } else if (Notify.isSupported()) {

@@ -17,6 +17,7 @@ import { Login } from './login'
 import { getPath } from '../helpers/url'
 import { MainLobby } from './mainLobby'
 import { subscribeToPresence } from '../helpers/firebase'
+import { askPermission } from '../helpers/notify'
 
 const Loading = () => <div>Loading...</div>
 
@@ -34,6 +35,8 @@ export class App extends React.Component<{}, State> {
   }
 
   componentDidMount() {
+    askPermission()
+
     const player = getPlayer()
     if (!player) return
 

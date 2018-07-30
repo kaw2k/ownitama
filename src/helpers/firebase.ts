@@ -10,7 +10,7 @@ import {
 import { getPath } from './url'
 import { values } from './values'
 import { isPlayer } from './player'
-import { clone } from './clone'
+import { notifyTurn } from './notify'
 const IdleJs = require('idle-js')
 
 // ===========================================
@@ -128,14 +128,34 @@ export const subscribeToGamePreview = (
   user: PlayerLobby,
   onGamePreviewChange: (state: GamePreview[]) => void
 ) => {
+  let prevState: GamePreview[] = []
+
   database.ref(firebaseRoutes.gamePreviews()).on('value', snapshot => {
     const isActivePlayer = isPlayer(user)
 
     const previewObj: FirebasePreviewState = (snapshot && snapshot.val()) || {}
 
+    // we only care about games we are taking part in
     const previews = values(previewObj).filter(
       game => isActivePlayer(game.players[0]) || isActivePlayer(game.players[1])
     )
+
+    // iterate over the new states and figure out if any of them are our turn
+    let isYourTurn: string[] = []
+    previews.forEach(preview => {
+      const isFirstPlayer = isActivePlayer(preview.players[0])
+      const wasFirstPlayer = prevState.find(preview =>
+        isActivePlayer(preview.players[0])
+      )
+
+      if (isFirstPlayer && !wasFirstPlayer) isYourTurn.push(preview.path)
+    })
+
+    // notify for all the turns we have
+    if (isYourTurn.length) notifyTurn(isYourTurn.join(', '))
+
+    // update our previous state
+    prevState = previews
 
     onGamePreviewChange(previews)
   })

@@ -19,7 +19,6 @@ import { equalCoordinates } from '../helpers/coordinates'
 import { updateLobby } from '../helpers/firebase'
 import { isGameOver } from '../helpers/isGameOver'
 import { possibleMoves } from '../helpers/moves'
-import { askPermission, notifyTurn } from '../helpers/notify'
 import { Spectate } from './spectate'
 import { isPlayer } from '../helpers/player'
 import './game.scss'
@@ -41,16 +40,10 @@ interface State {
 }
 
 export class Game extends React.Component<Props, State> {
-  private notifyTurn: boolean = false
-
   state: State = {
     message: '',
     origin: null,
     decideCard: null,
-  }
-
-  componentDidMount() {
-    askPermission()
   }
 
   render() {
@@ -84,14 +77,6 @@ export class Game extends React.Component<Props, State> {
       : []
 
     const gameOver = isGameOver(currentGame)
-
-    // Notify the player that it is their turn
-    if (!this.notifyTurn && isActivePlayer) {
-      notifyTurn()
-      this.notifyTurn = true
-    } else if (this.notifyTurn && !isActivePlayer) {
-      this.notifyTurn = false
-    }
 
     return (
       <>
